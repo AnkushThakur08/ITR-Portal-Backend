@@ -4,10 +4,10 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { errorHandler } from "./middleware/errorHandler";
 import authRoutes from "./routes/auth.routes";
-import userRoutes from "./routes/user.routes";
-import adminRoutes from "./routes/admin.routes";
-import documentRoutes from "./routes/document.routes";
-import paymentRoutes from "./routes/payment.routes";
+// import userRoutes from "./routes/user.routes";
+// import adminRoutes from "./routes/admin.routes";
+// import documentRoutes from "./routes/document.routes";
+// import paymentRoutes from "./routes/payment.routes";
 
 // Load environment variables
 dotenv.config();
@@ -21,13 +21,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/documents", documentRoutes);
-app.use("/api/payments", paymentRoutes);
+// app.use("/api/users", userRoutes);
+// app.use("/api/admin", adminRoutes);
+// app.use("/api/documents", documentRoutes);
+// app.use("/api/payments", paymentRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
+
+console.log("process.env.MONGODB_URI", process.env.MONGODB_URI);
 
 // Connect to MongoDB
 const MONGODB_URI =

@@ -1,18 +1,23 @@
-import { Request, Response } from 'express';
-import { User } from '../models/user.model';
-import jwt from 'jsonwebtoken';
-import { SignOptions } from 'jsonwebtoken';
-import nodemailer, { Transporter } from 'nodemailer';
-import { validateRequest } from '../middleware/validateRequest';
-import { registerSchema, loginSchema, verifyOTPSchema } from '../validations/auth.validation';
-import { generateOTP, sendOTP } from '../utils/otp';
+import { Request, Response } from "express";
+import { User } from "../models/user.model";
+import jwt from "jsonwebtoken";
+import { SignOptions } from "jsonwebtoken";
+import nodemailer, { Transporter } from "nodemailer";
+import { validateRequest } from "../middleware/validateRequest";
+import {
+  registerSchema,
+  loginSchema,
+  verifyOTPSchema,
+  sendOTPSchema,
+} from "../validations/auth.validation";
+import { generateOTP, sendOTP } from "../utils/otp";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 // Configure email transporter
 const transporter: Transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587', 10),
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.SMTP_PORT || "587", 10),
   secure: false,
   auth: {
     user: process.env.SMTP_USER,
@@ -22,7 +27,7 @@ const transporter: Transporter = nodemailer.createTransport({
 
 // JWT sign options
 const jwtOptions: SignOptions = {
-  expiresIn: '24h',
+  expiresIn: "24h",
 };
 
 export const registerUser = async (req: Request, res: Response) => {
@@ -30,9 +35,11 @@ export const registerUser = async (req: Request, res: Response) => {
     const { name, email, phoneNumber, password, userType } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { phoneNumber }] });
+    const existingUser = await User.findOne({
+      $or: [{ email }, { phoneNumber }],
+    });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     // Create new user
@@ -42,7 +49,7 @@ export const registerUser = async (req: Request, res: Response) => {
       phoneNumber,
       password,
       userType,
-      role: 'client',
+      role: "client",
     });
 
     await user.save();
@@ -60,7 +67,7 @@ export const registerUser = async (req: Request, res: Response) => {
     await transporter.sendMail({
       from: process.env.SMTP_USER,
       to: email,
-      subject: 'Welcome to ITR Filing Portal',
+      subject: "Welcome to ITR Filing Portal",
       html: `
         <h1>Welcome to ITR Filing Portal</h1>
         <p>Dear ${name},</p>
@@ -69,10 +76,12 @@ export const registerUser = async (req: Request, res: Response) => {
       `,
     });
 
-    res.status(201).json({ message: 'User registered successfully. Please verify your phone number.' });
+    res.status(201).json({
+      message: "User registered successfully. Please verify your phone number.",
+    });
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Error registering user' });
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Error registering user" });
   }
 };
 
@@ -82,15 +91,19 @@ export const loginWithPassword = async (req: Request, res: Response) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const isValidPassword = await user.comparePassword(password);
     if (!isValidPassword) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET, jwtOptions);
+    const token = jwt.sign(
+      { userId: user._id.toString() },
+      JWT_SECRET,
+      jwtOptions
+    );
 
     res.json({
       token,
@@ -103,8 +116,8 @@ export const loginWithPassword = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Error logging in' });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Error logging in" });
   }
 };
 
@@ -114,7 +127,7 @@ export const loginWithPhone = async (req: Request, res: Response) => {
 
     const user = await User.findOne({ phoneNumber });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid phone number' });
+      return res.status(401).json({ message: "Invalid phone number" });
     }
 
     // Generate OTP
@@ -126,10 +139,10 @@ export const loginWithPhone = async (req: Request, res: Response) => {
     // Send OTP
     await sendOTP(phoneNumber, otp);
 
-    res.json({ message: 'OTP sent successfully' });
+    res.json({ message: "OTP sent successfully" });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Error sending OTP' });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Error sending OTP" });
   }
 };
 
@@ -139,11 +152,11 @@ export const verifyOTP = async (req: Request, res: Response) => {
 
     const user = await User.findOne({ phoneNumber });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid phone number' });
+      return res.status(401).json({ message: "Invalid phone number" });
     }
 
     if (user.otp !== otp || !user.otpExpiry || user.otpExpiry < new Date()) {
-      return res.status(401).json({ message: 'Invalid or expired OTP' });
+      return res.status(401).json({ message: "Invalid or expired OTP" });
     }
 
     // Clear OTP
@@ -151,7 +164,11 @@ export const verifyOTP = async (req: Request, res: Response) => {
     user.otpExpiry = undefined;
     await user.save();
 
-    const token = jwt.sign({ userId: user._id.toString() }, JWT_SECRET, jwtOptions);
+    const token = jwt.sign(
+      { userId: user._id.toString() },
+      JWT_SECRET,
+      jwtOptions
+    );
 
     res.json({
       token,
@@ -164,8 +181,34 @@ export const verifyOTP = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('OTP verification error:', error);
-    res.status(500).json({ message: 'Error verifying OTP' });
+    console.error("OTP verification error:", error);
+    res.status(500).json({ message: "Error verifying OTP" });
+  }
+};
+
+export const sendOTPController = async (req: Request, res: Response) => {
+  try {
+    const { phoneNumber } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ phoneNumber });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+    user.otp = otp;
+    user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await user.save();
+
+    // Send OTP
+    await sendOTP(phoneNumber, otp);
+
+    res.json({ message: "OTP sent successfully" });
+  } catch (error) {
+    console.error("Send OTP error:", error);
+    res.status(500).json({ message: "Error sending OTP" });
   }
 };
 
@@ -174,4 +217,5 @@ export const authController = {
   loginWithPassword: [validateRequest(loginSchema), loginWithPassword],
   loginWithPhone: [validateRequest(loginSchema), loginWithPhone],
   verifyOTP: [validateRequest(verifyOTPSchema), verifyOTP],
-}; 
+  sendOTP: [validateRequest(sendOTPSchema), sendOTPController],
+};
