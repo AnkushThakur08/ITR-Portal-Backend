@@ -7,29 +7,29 @@ import {
   loginWithPasswordSchema,
   loginWithOTPSchema,
 } from "../validations/auth.validation";
-import { registerUser } from "@/controllers/auth.controller";
+import { loginWithPassword, loginWithPhone, registerUser, verifyOTP } from "@/controllers/auth.controller";
 import { validateRequest } from "@/middleware/validateRequest";
 
 const router = express.Router();
 
-// Send OTP
-// router.post("/send-otp", validateRequest(sendOTPSchema), sendOTPController);
-
-// Verify OTP
-// router.post("/verify-otp", validateRequest(verifyOTPSchema), verifyOTP);
-
 // Register user
 router.post("/register", validateRequest(registerSchema), registerUser);
 
+// Verify OTP
+router.post("/verify-otp", validateRequest(verifyOTPSchema), verifyOTP);
+
 // Login with password
-// router.post(
-//   "/login/password",
-//   validateRequest(loginWithPasswordSchema),
-//   loginWithPassword
-// );
+router.post("/login/password", validateRequest(loginWithPasswordSchema), loginWithPassword);
 
 // Login with OTP
-// router.post("/login/otp", validateRequest(loginWithOTPSchema), loginWithPhone);
+router.post("/login/otp", validateRequest(loginWithOTPSchema), loginWithPhone);
+
+
+// Send OTP
+// router.post("/send-otp", validateRequest(sendOTPSchema), sendOTPController);
+
+
+
 
 // Get current user
 // router.get("/me", protect, (req, res) => {
