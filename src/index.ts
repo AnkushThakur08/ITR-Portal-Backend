@@ -20,11 +20,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/api/auth", authRoutes);
-// app.use("/api/users", userRoutes);
-// app.use("/api/admin", adminRoutes);
-// app.use("/api/documents", documentRoutes);
-// app.use("/api/payments", paymentRoutes);
+app.use("/api/v1/auth", authRoutes);
+// app.use("/api/v1/users", userRoutes);
+// app.use("/api/v1/admin", adminRoutes);
+// app.use("/api/v1/documents", documentRoutes);
+// app.use("/api/v1/payments", paymentRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
@@ -42,7 +42,6 @@ mongoose
   .catch((error) => {
     console.error("MongoDB connection error:", error);
   });
-
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

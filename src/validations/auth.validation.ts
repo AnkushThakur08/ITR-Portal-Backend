@@ -18,13 +18,33 @@ export const verifyOTPSchema = Joi.object({
 });
 
 export const registerSchema = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().email().required(),
-  phone: Joi.string()
+  name: Joi.string().trim().min(2).max(50).required().messages({
+    "string.empty": "Name is required",
+    "string.min": "Name should have at least 2 characters",
+    "string.max": "Name should not exceed 50 characters",
+  }),
+
+  email: Joi.string().email().required().messages({
+    "string.email": "Enter a valid email address",
+    "string.empty": "Email is required",
+  }),
+
+  phoneNumber: Joi.string()
     .pattern(/^[0-9]{10}$/)
-    .required(),
-  password: Joi.string().min(6).required(),
-  userType: Joi.string().valid("individual", "business").required(),
+    .required()
+    .messages({
+      "string.pattern.base": "Phone must be a 10-digit number",
+      "string.empty": "Phone number is required",
+    }),
+
+  password: Joi.string().min(6).required().messages({
+    "string.min": "Password must be at least 6 characters long",
+    "string.empty": "Password is required",
+  }),
+
+  userType: Joi.string().valid("individual", "business").optional().messages({
+    "any.only": "User type must be either individual or business",
+  }),
 });
 
 export const loginSchema = Joi.object({

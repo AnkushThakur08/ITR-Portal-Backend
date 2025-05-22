@@ -69,6 +69,7 @@ const userSchema = new Schema<IUser>(
     userType: {
       type: String,
       enum: ["individual", "business"],
+      default: "individual",
     },
     incomeSources: {
       salary: { type: Boolean, default: false },

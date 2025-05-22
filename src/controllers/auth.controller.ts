@@ -38,6 +38,7 @@ export const registerUser = async (req: Request, res: Response) => {
     const existingUser = await User.findOne({
       $or: [{ email }, { phoneNumber }],
     });
+
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -63,16 +64,20 @@ export const registerUser = async (req: Request, res: Response) => {
     // Send OTP
     await sendOTP(phoneNumber, otp);
 
-    // Send welcome email
+    // Send welcome + OTP email
     await transporter.sendMail({
       from: process.env.SMTP_USER,
       to: email,
-      subject: "Welcome to ITR Filing Portal",
+      subject: "Welcome to ITR Filing Portal - Verify Your Account",
       html: `
-        <h1>Welcome to ITR Filing Portal</h1>
+          <h1>Welcome to ITR Filing Portal</h1>
         <p>Dear ${name},</p>
         <p>Thank you for registering with us. Your account has been created successfully.</p>
-        <p>Please verify your phone number using the OTP sent to your mobile.</p>
+        <p><strong>Your OTP  is: <span style="font-size: 18px;">${otp}</span></strong></p>
+        <p>This OTP will expire in 10 minutes.</p>
+        <p>Please enter this OTP to verify . It has also been sent via SMS to ${phoneNumber}.</p>
+        <br/>
+        <p>Regards,<br/>ITR Filing Portal Team</p>
       `,
     });
 
