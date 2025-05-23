@@ -11,6 +11,7 @@ export interface IUser extends Document {
   password?: string;
   role: "client" | "admin" | "superadmin";
   userType?: "individual" | "business";
+  termsAccepted?: boolean;
   incomeSources: {
     salary: boolean;
     houseProperty: boolean;
@@ -29,12 +30,12 @@ export interface IUser extends Document {
   taxPortalPassword?: string;
   assignedTo?: mongoose.Types.ObjectId;
   status:
-    | "pending"
-    | "in_progress"
-    | "completed"
-    | "blocked"
-    | "pending_on_client"
-    | "payment_pending";
+  | "pending"
+  | "in_progress"
+  | "completed"
+  | "blocked"
+  | "pending_on_client"
+  | "payment_pending";
   remarks?: string;
   otp?: string;
   otpExpiry?: Date;
@@ -50,26 +51,49 @@ const userSchema = new Schema<IUser>(
       required: true,
       unique: true,
     },
+
     email: {
       type: String,
       sparse: true,
       required: true,
       unique: true,
     },
-    name: String,
-    address: String,
-    pan: String,
-    age: Number,
-    password: String,
+
+    name: {
+      type: String,
+    },
+
+    address: {
+      type: String,
+    },
+
+    pan: {
+      type: String,
+      unique: true,
+    },
+
+    age: {
+      type: Number,
+    },
+
+    password: {
+      type: String,
+    },
+
     role: {
       type: String,
       enum: ["client", "admin", "superadmin"],
       default: "client",
     },
+
     userType: {
       type: String,
       enum: ["individual", "business"],
       default: "individual",
+    },
+    termsAccepted: {
+      type: Boolean,
+      default: false,
     },
     incomeSources: {
       salary: { type: Boolean, default: false },
@@ -79,10 +103,12 @@ const userSchema = new Schema<IUser>(
       otherSources: { type: Boolean, default: false },
       foreignSource: { type: Boolean, default: false },
     },
+
     itrType: {
       type: String,
       enum: ["ITR1", "ITR2", "ITR3", "ITR4"],
     },
+
     documents: [
       {
         name: String,
@@ -91,11 +117,14 @@ const userSchema = new Schema<IUser>(
         uploadedAt: { type: Date, default: Date.now },
       },
     ],
+
     taxPortalPassword: String,
+
     assignedTo: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+
     status: {
       type: String,
       enum: [

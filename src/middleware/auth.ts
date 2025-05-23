@@ -34,10 +34,10 @@ export const protect = async (
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "your-secret-key"
-    ) as { id: string };
+    ) as { userId: string };
 
     // 3) Check if user still exists
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.userId);
     if (!user) {
       return next(
         new AppError("The user belonging to this token no longer exists", 401)

@@ -61,6 +61,14 @@ export const loginWithOTPSchema = Joi.object({
     }),
 });
 
+export const termsAcceptSchema = Joi.object({
+  termsAccepted: Joi.boolean().required().messages({
+    "any.required": "Terms and conditions must be accepted",
+  }),
+});
+
+
+// NOT GETTING USED
 export const sendOTPSchema = Joi.object({
   phoneNumber: Joi.string()
     .pattern(/^[0-9]{10}$/)

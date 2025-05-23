@@ -6,8 +6,9 @@ import {
   registerSchema,
   loginWithPasswordSchema,
   loginWithOTPSchema,
+  termsAcceptSchema,
 } from "../validations/auth.validation";
-import { loginWithPassword, loginWithPhone, registerUser, verifyOTP } from "@/controllers/auth.controller";
+import { acceptTermsAndConditions, loginWithPassword, loginWithPhone, registerUser, verifyOTP } from "@/controllers/auth.controller";
 import { validateRequest } from "@/middleware/validateRequest";
 
 const router = express.Router();
@@ -23,6 +24,9 @@ router.post("/login/password", validateRequest(loginWithPasswordSchema), loginWi
 
 // Login with OTP
 router.post("/login/otp", validateRequest(loginWithOTPSchema), loginWithPhone);
+
+// AcceptTerm&Condtions
+router.post("/terms", protect, validateRequest(termsAcceptSchema), acceptTermsAndConditions)
 
 
 // Send OTP

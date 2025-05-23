@@ -8,6 +8,7 @@ import {
   loginSchema,
   verifyOTPSchema,
   sendOTPSchema,
+  termsAcceptSchema,
 } from "../validations/auth.validation";
 import { generateOTP, sendOTP } from "../utils/otp";
 import { sendWelcomeEmail, sendOTPEmail } from "../utils/email";
@@ -166,6 +167,41 @@ export const loginWithPhone = async (req: Request, res: Response) => {
   }
 };
 
+export const acceptTermsAndConditions = async (req: Request, res: Response) => {
+  try {
+    const { termsAccepted } = req.body;
+
+    // req.user is set in the `protect` middleware
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: "User does not exist" });
+    }
+
+    // Update the user's termsAccepted field
+    user.termsAccepted = termsAccepted;
+    await user.save();
+
+    res.status(200).json({
+      status: "success",
+      message: "Terms and conditions accepted successfully",
+      data: {
+        userId: user._id,
+        termsAccepted: user.termsAccepted,
+      },
+    });
+
+
+  } catch (error) {
+    console.error("Unable to accept the Terms", error);
+    res.status(500).json({ message: "Fail to accept the condition" });
+
+  }
+
+
+}
+
+
 export const sendOTPController = async (req: Request, res: Response) => {
   try {
     const { phoneNumber } = req.body;
@@ -194,8 +230,9 @@ export const sendOTPController = async (req: Request, res: Response) => {
 
 export const authController = {
   registerUser: [validateRequest(registerSchema), registerUser],
+  verifyOTP: [validateRequest(verifyOTPSchema), verifyOTP],
   loginWithPassword: [validateRequest(loginSchema), loginWithPassword],
   loginWithPhone: [validateRequest(loginSchema), loginWithPhone],
-  verifyOTP: [validateRequest(verifyOTPSchema), verifyOTP],
+  acceptTermsAndConditions: [validateRequest(termsAcceptSchema), acceptTermsAndConditions],
   sendOTP: [validateRequest(sendOTPSchema), sendOTPController],
 };
