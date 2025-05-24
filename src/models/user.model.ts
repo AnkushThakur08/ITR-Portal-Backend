@@ -1,26 +1,35 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
+export interface IStepperStatus {
+  currentStep: 1 | 2 | 3 | 4 | 5;
+  isCompleted: boolean;
+}
+
 export interface IUser extends Document {
   phoneNumber: string;
   email?: string;
   name?: string;
   address?: string;
+  pincode?: string;
   pan?: string;
-  age?: number;
+  dob?: Date;
+  bankAccountNumber?: string;
+  ifscCode?: string;
   password?: string;
   role: "client" | "admin" | "superadmin";
   userType?: "individual" | "business";
   termsAccepted?: boolean;
   incomeSources: {
-    salary: boolean;
-    houseProperty: boolean;
+    salaryIncome: boolean;
+    rentalIncome: boolean;
     business: boolean;
     capitalGains: boolean;
     otherSources: boolean;
     foreignSource: boolean;
   };
   itrType?: "ITR1" | "ITR2" | "ITR3" | "ITR4";
+  itrPrice?: number;
   documents: {
     name: string;
     url: string;
@@ -39,6 +48,7 @@ export interface IUser extends Document {
   remarks?: string;
   otp?: string;
   otpExpiry?: Date;
+  stepperStatus: IStepperStatus;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -67,13 +77,29 @@ const userSchema = new Schema<IUser>(
       type: String,
     },
 
+    pincode: {
+      type: String,
+      match: /^[0-9]{6}$/
+    },
+
     pan: {
       type: String,
       unique: true,
+      match: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
     },
 
-    age: {
-      type: Number,
+    dob: {
+      type: Date
+    },
+
+    bankAccountNumber: {
+      type: String,
+      trim: true
+    },
+
+    ifscCode: {
+      type: String,
+      match: /^[A-Z]{4}0[A-Z0-9]{6}$/
     },
 
     password: {
@@ -96,9 +122,9 @@ const userSchema = new Schema<IUser>(
       default: false,
     },
     incomeSources: {
-      salary: { type: Boolean, default: false },
-      houseProperty: { type: Boolean, default: false },
+      salaryIncome: { type: Boolean, default: false },
       business: { type: Boolean, default: false },
+      rentalIncome: { type: Boolean, default: false },
       capitalGains: { type: Boolean, default: false },
       otherSources: { type: Boolean, default: false },
       foreignSource: { type: Boolean, default: false },
@@ -107,6 +133,10 @@ const userSchema = new Schema<IUser>(
     itrType: {
       type: String,
       enum: ["ITR1", "ITR2", "ITR3", "ITR4"],
+    },
+
+    itrPrice: {
+      type: Number
     },
 
     documents: [
@@ -140,6 +170,17 @@ const userSchema = new Schema<IUser>(
     remarks: String,
     otp: String,
     otpExpiry: Date,
+    stepperStatus: {
+      currentStep: {
+        type: Number,
+        enum: [1, 2, 3, 4, 5],
+        default: 1
+      },
+      isCompleted: {
+        type: Boolean,
+        default: false
+      }
+    }
   },
   {
     timestamps: true,
@@ -150,6 +191,45 @@ const userSchema = new Schema<IUser>(
 userSchema.pre("save", async function (next) {
   if (this.isModified("password") && this.password) {
     this.password = await bcrypt.hash(this.password, 12);
+  }
+  next();
+});
+
+// Pre-save middleware to determine ITR type and price based on income sources
+userSchema.pre("save", function (next) {
+  if (this.isModified("incomeSources")) {
+    const {
+      salaryIncome,
+      rentalIncome,
+      business,
+      capitalGains,
+      otherSources,
+      foreignSource
+    } = this.incomeSources;
+
+    // ITR 1: Any combination of salary, rental, and other sources
+    // But NO business, capital gains, or foreign income
+    if (!business && !capitalGains && !foreignSource &&
+      (salaryIncome || rentalIncome || otherSources)) {
+      this.itrType = "ITR1";
+      this.itrPrice = 299;
+    }
+    // ITR 2: Any income source with capital gains or foreign income
+    // But NO business income
+    else if (!business && (capitalGains || foreignSource)) {
+      this.itrType = "ITR2";
+      this.itrPrice = 1499;
+    }
+    // ITR 3: Business income with capital gains or foreign income
+    else if (business && (capitalGains || foreignSource)) {
+      this.itrType = "ITR3";
+      this.itrPrice = 1999;
+    }
+    // ITR 4: Business income without capital gains or foreign income
+    else if (business) {
+      this.itrType = "ITR4";
+      this.itrPrice = 799;
+    }
   }
   next();
 });
