@@ -67,4 +67,15 @@ export const incomeSourcesSchema = Joi.object({
   capitalGains: Joi.boolean().required(),
   foreignSource: Joi.boolean().required(),
   otherSources: Joi.boolean().required(),
-});
+})
+  .custom((value, helpers) => {
+    const hasAtLeastOneIncome = Object.values(value).some((v) => v === true);
+    if (!hasAtLeastOneIncome) {
+      return helpers.error("any.atLeastOneIncome");
+    }
+    return value;
+  }, "At least one income source must be selected")
+  .messages({
+    "any.atLeastOneIncome":
+      "At least one income source must be selected to file an ITR.",
+  });
