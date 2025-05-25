@@ -1,17 +1,19 @@
+import multer from "multer";
+import express from "express";
+import { protect } from "@/middleware/auth";
+import { validateRequest } from "@/middleware/validateRequest";
 import {
   updateIncomeSources,
   updatePersonalDetails,
   uploadDocuments,
 } from "@/controllers/user.controller";
-import { protect } from "@/middleware/auth";
-import { validateRequest } from "@/middleware/validateRequest";
 import {
   incomeSourcesSchema,
   personalDetailsSchema,
 } from "@/validations/user.validation";
-import express from "express";
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.patch(
   "/personal-details",
@@ -27,6 +29,11 @@ router.patch(
   updateIncomeSources
 );
 
-router.post("/upload-documents", protect, uploadDocuments);
+router.post(
+  "/upload-documents",
+  protect,
+  upload.array("documents"),
+  uploadDocuments
+);
 
 export default router;

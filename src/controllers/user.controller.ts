@@ -1,7 +1,14 @@
+import { Request, Response, NextFunction } from "express";
+import { v2 as cloudinary } from "cloudinary";
 import { AppError } from "@/middleware/errorHandler";
 import { ITRType } from "@/models/payment.model";
 import { User } from "@/models/user.model";
-import { Request, Response, NextFunction } from "express";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export const updatePersonalDetails = async (
   req: Request,
@@ -112,20 +119,47 @@ export const uploadDocuments = async (
     const user = await User.findById(userId);
     if (!user) return next(new AppError("User not found", 404));
 
-    files.forEach((file) => {
-      user.documents.push({
-        name: file.originalname,
-        url: file.path,
-        type: file.mimetype,
-        uploadedAt: new Date(),
-      });
-    });
+    // Upload all files in parallel
+    const uploads = await Promise.all(
+      files.map((file) => {
+        return new Promise<{
+          name: string;
+          url: string;
+          type: string;
+          uploadedAt: Date;
+        }>((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: "auto",
+              folder: "itr-documents",
+            },
+            (error, result) => {
+              if (error || !result)
+                return reject(error || new Error("Upload failed"));
+              resolve({
+                name: file.originalname,
+                url: result.secure_url,
+                type: file.mimetype,
+                uploadedAt: new Date(),
+              });
+            }
+          );
+          stream.end(file.buffer);
+        });
+      })
+    );
 
+    // Push all uploaded docs at once
+    user.documents.push(...uploads);
     user.stepperStatus.currentStep = 4;
     await user.save();
 
-    res.status(200).json({ message: "Documents uploaded successfully" });
+    res.status(200).json({
+      message: "Documents uploaded to Cloudinary successfully",
+      documents: uploads,
+    });
   } catch (error) {
+    console.error("Upload failed:", error);
     next(error);
   }
 };

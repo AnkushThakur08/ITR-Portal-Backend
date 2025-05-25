@@ -39,12 +39,12 @@ export interface IUser extends Document {
   taxPortalPassword?: string;
   assignedTo?: mongoose.Types.ObjectId;
   status:
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "blocked"
-  | "pending_on_client"
-  | "payment_pending";
+    | "pending"
+    | "in_progress"
+    | "completed"
+    | "blocked"
+    | "pending_on_client"
+    | "payment_pending";
   remarks?: string;
   otp?: string;
   otpExpiry?: Date;
@@ -79,27 +79,27 @@ const userSchema = new Schema<IUser>(
 
     pincode: {
       type: String,
-      match: /^[0-9]{6}$/
+      match: /^[0-9]{6}$/,
     },
 
     pan: {
       type: String,
       unique: true,
-      match: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
+      match: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
     },
 
     dob: {
-      type: Date
+      type: Date,
     },
 
     bankAccountNumber: {
       type: String,
-      trim: true
+      trim: true,
     },
 
     ifscCode: {
       type: String,
-      match: /^[A-Z]{4}0[A-Z0-9]{6}$/
+      match: /^[A-Z]{4}0[A-Z0-9]{6}$/,
     },
 
     password: {
@@ -136,17 +136,20 @@ const userSchema = new Schema<IUser>(
     },
 
     itrPrice: {
-      type: Number
+      type: Number,
     },
 
-    documents: [
-      {
-        name: String,
-        url: String,
-        type: String,
-        uploadedAt: { type: Date, default: Date.now },
-      },
-    ],
+    documents: {
+      type: [
+        {
+          name: { type: String, required: true },
+          url: { type: String, required: true },
+          type: { type: String, required: true },
+          uploadedAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
 
     taxPortalPassword: String,
 
@@ -174,13 +177,13 @@ const userSchema = new Schema<IUser>(
       currentStep: {
         type: Number,
         enum: [1, 2, 3, 4, 5],
-        default: 1
+        default: 1,
       },
       isCompleted: {
         type: Boolean,
-        default: false
-      }
-    }
+        default: false,
+      },
+    },
   },
   {
     timestamps: true,
@@ -204,13 +207,17 @@ userSchema.pre("save", function (next) {
       business,
       capitalGains,
       otherSources,
-      foreignSource
+      foreignSource,
     } = this.incomeSources;
 
     // ITR 1: Any combination of salary, rental, and other sources
     // But NO business, capital gains, or foreign income
-    if (!business && !capitalGains && !foreignSource &&
-      (salaryIncome || rentalIncome || otherSources)) {
+    if (
+      !business &&
+      !capitalGains &&
+      !foreignSource &&
+      (salaryIncome || rentalIncome || otherSources)
+    ) {
       this.itrType = "ITR1";
       this.itrPrice = 299;
     }
