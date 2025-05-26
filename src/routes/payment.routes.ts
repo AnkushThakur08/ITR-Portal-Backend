@@ -1,10 +1,13 @@
 import express from "express";
 import { protect } from "@/middleware/auth";
-import { createRazorpayOrders } from "@/controllers/payment.controllers";
+import {
+  createRazorpayOrder,
+  handleRazorpayWebhook,
+} from "@/controllers/payment.controllers";
 
 const router = express.Router();
 
-router.post("/create-order", protect, createRazorpayOrders);
-router.post("/razorpay-webhook");
+router.post("/create-order", protect, createRazorpayOrder);
+router.post("/razorpay-webhook", handleRazorpayWebhook);
 
 export default router;
