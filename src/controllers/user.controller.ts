@@ -241,3 +241,77 @@ export const downloadInvoice = async (
     next(error);
   }
 };
+
+export const getUserDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .select("name email phoneNumber pan address pincode dob")
+      .lean();
+    if (!user) return next(new AppError("User not found", 404));
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUserDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { name, pan, address, pincode, dob } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new AppError("User not found", 404));
+
+    user.name = name;
+    user.pan = pan;
+    user.address = address;
+    user.pincode = pincode;
+    user.dob = dob;
+
+    await user.save();
+    res.status(200).json({ message: "Personal details updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserDocuments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await User.findById(req.user._id).select("documents").lean();
+    if (!user) return next(new AppError("User not found", 404));
+
+    res.status(200).json(user.documents);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteUserDocument = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { filename } = req.params;
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new AppError("User not found", 404));
+
+    user.documents = user.documents.filter((doc) => doc.name !== filename);
+    await user.save();
+
+    res.status(200).json({ message: "Document deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
