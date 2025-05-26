@@ -163,3 +163,23 @@ export const uploadDocuments = async (
     next(error);
   }
 };
+
+export const updateTaxPortalPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user._id;
+    const { taxPortalPassword } = req.body;
+    const user = await User.findById(userId);
+    if (!user) return next(new AppError("User not found", 404));
+    user.taxPortalPassword = taxPortalPassword;
+    user.stepperStatus.currentStep = 5;
+
+    await user.save();
+    res.status(200).json({ message: "Tax portal password saved successfully" });
+  } catch (error) {
+    next(error);
+  }
+};

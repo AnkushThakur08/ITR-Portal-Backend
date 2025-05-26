@@ -5,16 +5,19 @@ import { validateRequest } from "@/middleware/validateRequest";
 import {
   updateIncomeSources,
   updatePersonalDetails,
+  updateTaxPortalPassword,
   uploadDocuments,
 } from "@/controllers/user.controller";
 import {
   incomeSourcesSchema,
   personalDetailsSchema,
+  taxPortalPasswordSchema,
 } from "@/validations/user.validation";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
+// Personal Details
 router.patch(
   "/personal-details",
   protect,
@@ -22,6 +25,7 @@ router.patch(
   updatePersonalDetails
 );
 
+// Income Source
 router.patch(
   "/income-sources",
   protect,
@@ -29,11 +33,20 @@ router.patch(
   updateIncomeSources
 );
 
+// Upload Document
 router.post(
   "/upload-documents",
   protect,
   upload.array("documents"),
   uploadDocuments
+);
+
+// Tax Password
+router.patch(
+  "/tax-password",
+  protect,
+  validateRequest(taxPortalPasswordSchema),
+  updateTaxPortalPassword
 );
 
 export default router;

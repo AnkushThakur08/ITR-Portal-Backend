@@ -79,3 +79,9 @@ export const incomeSourcesSchema = Joi.object({
     "any.atLeastOneIncome":
       "At least one income source must be selected to file an ITR.",
   });
+
+export const taxPortalPasswordSchema = Joi.object({
+  taxPortalPassword: Joi.string().required().messages({
+    "string.empty": "Password is required",
+  }),
+});
