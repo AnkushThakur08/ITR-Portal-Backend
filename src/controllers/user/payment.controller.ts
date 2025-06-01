@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
+import Razorpay from "razorpay";
+import crypto from "crypto";
 import { AppError } from "@/middleware/errorHandler";
 import { User } from "@/models/user.model";
 import { Payment } from "@/models/payment.model";
-import Razorpay from "razorpay";
-import crypto from "crypto";
+
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,

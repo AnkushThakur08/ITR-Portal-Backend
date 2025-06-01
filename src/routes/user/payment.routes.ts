@@ -3,7 +3,7 @@ import { protect } from "@/middleware/auth";
 import {
   createRazorpayOrder,
   handleRazorpayWebhook,
-} from "@/controllers/payment.controller";
+} from "@/controllers/user/payment.controller";
 
 const router = express.Router();
 

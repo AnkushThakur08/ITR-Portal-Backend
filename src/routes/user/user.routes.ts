@@ -10,7 +10,7 @@ import {
   deleteUserDocument,
   getUserPaymentStats,
   getAllUserPayments,
-} from "@/controllers/user.controller";
+} from "@/controllers/user/user.controller";
 
 const router = express.Router();
 

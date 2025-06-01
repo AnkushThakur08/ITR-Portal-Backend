@@ -7,12 +7,12 @@ import {
   updatePersonalDetails,
   updateTaxPortalPassword,
   uploadDocuments,
-} from "@/controllers/onboarding.controller";
+} from "@/controllers/user/onboarding.controller";
 import {
   incomeSourcesSchema,
   personalDetailsSchema,
   taxPortalPasswordSchema,
-} from "@/validations/onboarding.validation";
+} from "@/validations/user/onboarding.validation";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });

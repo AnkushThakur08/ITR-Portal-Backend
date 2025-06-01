@@ -7,8 +7,14 @@ import {
   loginWithPasswordSchema,
   loginWithOTPSchema,
   termsAcceptSchema,
-} from "../validations/auth.validation";
-import { acceptTermsAndConditions, loginWithPassword, loginWithPhone, registerUser, verifyOTP } from "@/controllers/auth.controller";
+} from "@/validations/user/auth.validation";
+import {
+  acceptTermsAndConditions,
+  loginWithPassword,
+  loginWithPhone,
+  registerUser,
+  verifyOTP,
+} from "@/controllers/user/auth.controller";
 import { validateRequest } from "@/middleware/validateRequest";
 
 const router = express.Router();
@@ -20,20 +26,25 @@ router.post("/register", validateRequest(registerSchema), registerUser);
 router.post("/verify-otp", validateRequest(verifyOTPSchema), verifyOTP);
 
 // Login with password
-router.post("/login/password", validateRequest(loginWithPasswordSchema), loginWithPassword);
+router.post(
+  "/login/password",
+  validateRequest(loginWithPasswordSchema),
+  loginWithPassword
+);
 
 // Login with OTP
 router.post("/login/otp", validateRequest(loginWithOTPSchema), loginWithPhone);
 
 // AcceptTerm&Condtions
-router.post("/terms", protect, validateRequest(termsAcceptSchema), acceptTermsAndConditions)
-
+router.post(
+  "/terms",
+  protect,
+  validateRequest(termsAcceptSchema),
+  acceptTermsAndConditions
+);
 
 // Send OTP
 // router.post("/send-otp", validateRequest(sendOTPSchema), sendOTPController);
-
-
-
 
 // Get current user
 // router.get("/me", protect, (req, res) => {

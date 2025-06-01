@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
-import { User } from "../models/user.model";
 import jwt from "jsonwebtoken";
 import { SignOptions } from "jsonwebtoken";
-import { validateRequest } from "../middleware/validateRequest";
+import { User } from "@/models/user.model";
+import { validateRequest } from "@/middleware/validateRequest";
 import {
   registerSchema,
   loginSchema,
   verifyOTPSchema,
   sendOTPSchema,
   termsAcceptSchema,
-} from "../validations/auth.validation";
-import { generateOTP, sendOTP } from "../utils/otp";
-import { sendWelcomeEmail, sendOTPEmail } from "../utils/email";
+} from "@/validations/user/auth.validation";
+import { generateOTP, sendOTP } from "@/utils/otp";
+import { sendWelcomeEmail, sendOTPEmail } from "@/utils/email";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -58,7 +58,8 @@ export const registerUser = async (req: Request, res: Response) => {
     await sendOTPEmail(email, otp, name);
 
     res.status(201).json({
-      message: "User registered successfully. Please verify your account using the OTP sent.",
+      message:
+        "User registered successfully. Please verify your account using the OTP sent.",
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -190,17 +191,11 @@ export const acceptTermsAndConditions = async (req: Request, res: Response) => {
         termsAccepted: user.termsAccepted,
       },
     });
-
-
   } catch (error) {
     console.error("Unable to accept the Terms", error);
     res.status(500).json({ message: "Fail to accept the condition" });
-
   }
-
-
-}
-
+};
 
 export const sendOTPController = async (req: Request, res: Response) => {
   try {
@@ -233,6 +228,9 @@ export const authController = {
   verifyOTP: [validateRequest(verifyOTPSchema), verifyOTP],
   loginWithPassword: [validateRequest(loginSchema), loginWithPassword],
   loginWithPhone: [validateRequest(loginSchema), loginWithPhone],
-  acceptTermsAndConditions: [validateRequest(termsAcceptSchema), acceptTermsAndConditions],
+  acceptTermsAndConditions: [
+    validateRequest(termsAcceptSchema),
+    acceptTermsAndConditions,
+  ],
   sendOTP: [validateRequest(sendOTPSchema), sendOTPController],
 };

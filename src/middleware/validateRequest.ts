@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Schema } from "joi";
-import { AppError } from "./errorHandler";
+import { AppError } from "@/middleware/errorHandler";
 
 export const validateRequest = (schema: Schema) => {
   return (req: Request, res: Response, next: NextFunction) => {

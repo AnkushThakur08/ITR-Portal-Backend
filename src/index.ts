@@ -2,11 +2,11 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import { errorHandler } from "./middleware/errorHandler";
-import authRoutes from "./routes/auth.routes";
-import onboardingRoutes from "./routes/onboarding.routes";
-import userRoutes from "./routes/user.routes";
-// import adminRoutes from "./routes/admin.routes";
+import { errorHandler } from "@/middleware/errorHandler";
+import authRoutes from "@/routes/user/auth.routes";
+import onboardingRoutes from "@/routes/user/onboarding.routes";
+import userRoutes from "@/routes/user/user.routes";
+import adminRoutes from "@/routes/admin/admin.auth.routes";
 // import documentRoutes from "./routes/document.routes";
 // import paymentRoutes from "./routes/payment.routes";
 
@@ -24,7 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/onboarding", onboardingRoutes);
 app.use("/api/v1/user", userRoutes);
-// app.use("/api/v1/admin", adminRoutes);
+
+// ADMIN
+app.use("/api/v1/admin", adminRoutes);
 // app.use("/api/v1/documents", documentRoutes);
 // app.use("/api/v1/payments", paymentRoutes);
 
