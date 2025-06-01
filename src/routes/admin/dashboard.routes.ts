@@ -1,6 +1,9 @@
 import express from "express";
 import { protect, restrictTo } from "@/middleware/auth";
-import { getAdminDashboardStats, getAdminRecentITRs } from "@/controllers/admin/admin.controller";
+import {
+  getAdminDashboardStats,
+  getAdminRecentITRs,
+} from "@/controllers/admin/dashboard.controller";
 
 const router = express.Router();
 

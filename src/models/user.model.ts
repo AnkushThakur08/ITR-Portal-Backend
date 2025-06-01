@@ -155,7 +155,7 @@ const userSchema = new Schema<IUser>(
 
     assignedTo: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Admin",
     },
 
     status: {

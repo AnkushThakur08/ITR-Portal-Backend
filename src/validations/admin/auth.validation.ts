@@ -40,8 +40,20 @@ export const adminSignupSchema = Joi.object({
     "any.only": "Role must be admin or superadmin",
     "any.required": "Role is required",
   }),
-  phoneNumber: Joi.string().length(10).required().messages({
-    "string.length": "Phone number must be 10 digits",
-    "any.required": "Phone number is required",
-  }),
+});
+
+export const updateUserByAdminSchema = Joi.object({
+  name: Joi.string().min(2).max(50),
+  email: Joi.string().email(),
+  phoneNumber: Joi.string().pattern(/^[6-9]\d{9}$/),
+  itrType: Joi.string().valid("ITR1", "ITR2", "ITR3", "ITR4"),
+  status: Joi.string().valid(
+    "pending",
+    "in_progress",
+    "completed",
+    "blocked",
+    "pending_on_client",
+    "payment_pending"
+  ),
+  assignedTo: Joi.string().hex().length(24),
 });

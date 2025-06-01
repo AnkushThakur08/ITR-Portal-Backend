@@ -7,7 +7,8 @@ import authRoutes from "@/routes/user/auth.routes";
 import onboardingRoutes from "@/routes/user/onboarding.routes";
 import userRoutes from "@/routes/user/user.routes";
 import adminRoutes from "@/routes/admin/auth.routes";
-import adminDashboardRoutes from "@/routes/admin/admin.routes";
+import adminDashboardRoutes from "@/routes/admin/dashboard.routes";
+import adminUserRoutes from "@/routes/admin/user.routes";
 // import documentRoutes from "./routes/document.routes";
 // import paymentRoutes from "./routes/payment.routes";
 
@@ -29,6 +30,7 @@ app.use("/api/v1/user", userRoutes);
 // ADMIN
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/admin", adminDashboardRoutes);
+app.use("/api/v1/admin", adminUserRoutes);
 // app.use("/api/v1/documents", documentRoutes);
 // app.use("/api/v1/payments", paymentRoutes);
 

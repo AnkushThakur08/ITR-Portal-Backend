@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { User } from "@/models/user.model";
 import { AppError } from "@/middleware/errorHandler";
 import jwt from "jsonwebtoken";
+import { Admin } from "@/models/admin.model";
 
 export const adminLogin = async (
   req: Request,
@@ -11,7 +11,7 @@ export const adminLogin = async (
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await Admin.findOne({ email });
     if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
       return next(new AppError("Admin Not Found", 404));
     }
@@ -42,13 +42,13 @@ export const adminSignup = async (
   try {
     const { name, email, password, role, phoneNumber } = req.body;
 
-    const existingUser = await User.findOne({ email, phoneNumber });
+    const existingUser = await Admin.findOne({ email, phoneNumber });
 
     if (existingUser) {
       return next(new AppError("User Already Exits", 400));
     }
 
-    const newUser = new User({
+    const newUser = new Admin({
       name,
       email,
       password,
