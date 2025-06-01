@@ -2,11 +2,11 @@ import express from "express";
 import {
   adminLoginSchema,
   adminSignupSchema,
-} from "@/validations/admin/admin.auth.validation";
+} from "@/validations/admin/auth.validation";
 import {
   adminLogin,
   adminSignup,
-} from "@/controllers/admin/admin.auth.controller";
+} from "@/controllers/admin/auth.controller";
 import { validateRequest } from "@/middleware/validateRequest";
 
 const router = express.Router();
