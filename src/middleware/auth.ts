@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "@/models/user.model";
 import { AppError } from "@/middleware/errorHandler";
+import { Admin } from "@/models/admin.model";
 
 declare global {
   namespace Express {
@@ -34,10 +35,17 @@ export const protect = async (
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "your-secret-key"
-    ) as { userId: string };
+    ) as { userId: string; role: string };
 
-    // 3) Check if user still exists
-    const user = await User.findById(decoded.userId);
+    // Check in Admin or User model based on token role, Check if user still exists
+    let user = null;
+
+    if (decoded.role === "admin" || decoded.role === "superadmin") {
+      user = await Admin.findById(decoded.userId).select("-password");
+    } else {
+      user = await User.findById(decoded.userId).select("-password");
+    }
+
     if (!user) {
       return next(
         new AppError("The user belonging to this token no longer exists", 401)
