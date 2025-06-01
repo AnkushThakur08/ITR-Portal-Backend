@@ -8,6 +8,7 @@ import fs from "fs";
 import path from "path";
 import QRCode from "qrcode";
 
+// Dashboard API
 export const getUserProfile = async (
   req: Request,
   res: Response,
@@ -242,6 +243,7 @@ export const downloadInvoice = async (
   }
 };
 
+// Personal Details
 export const getUserDetails = async (
   req: Request,
   res: Response,
@@ -282,6 +284,7 @@ export const updateUserDetails = async (
   }
 };
 
+// Document
 export const getUserDocuments = async (
   req: Request,
   res: Response,
@@ -311,6 +314,65 @@ export const deleteUserDocument = async (
     await user.save();
 
     res.status(200).json({ message: "Document deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Payments
+export const getUserPaymentStats = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const payments = await Payment.find({
+      userId: req.user._id,
+      paymentStatus: "COMPLETED",
+    })
+      .sort({ paymentDate: -1 })
+      .lean();
+
+    const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+    const lastPayment = payments[0];
+
+    res.status(200).json({
+      totalPaid,
+      lastPayment: lastPayment
+        ? {
+            amount: lastPayment.amount,
+            method: lastPayment.paymentMethod,
+            date: moment(lastPayment.paymentDate).format("YYYY-MM-DD"),
+          }
+        : null,
+      invoiceCount: payments.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllUserPayments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const payments = await Payment.find({ userId: req.user._id })
+      .sort({ paymentDate: -1 })
+      .lean();
+
+    const formatted = payments.map((p) => ({
+      date: moment(p.paymentDate).format("YYYY-MM-DD"),
+      description: `${p.itrType} Filing Fee`,
+      amount: p.amount,
+      paymentMethod: p.paymentMethod,
+      status: p.paymentStatus === "COMPLETED" ? "Completed" : p.paymentStatus,
+      transactionId: p.transactionId,
+      invoiceUrl: `/api/v1/users/invoice/${p.transactionId}`,
+    }));
+
+    res.status(200).json(formatted);
   } catch (error) {
     next(error);
   }

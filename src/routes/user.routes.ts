@@ -8,6 +8,8 @@ import {
   updateUserDetails,
   getUserDocuments,
   deleteUserDocument,
+  getUserPaymentStats,
+  getAllUserPayments,
 } from "@/controllers/user.controller";
 
 const router = express.Router();
@@ -25,6 +27,10 @@ router.patch("/details", protect, updateUserDetails);
 
 // Document
 router.get("/documents", protect, getUserDocuments);
-router.delete("/documents/::filename", protect, deleteUserDocument);
+router.delete("/documents/:filename", protect, deleteUserDocument);
+
+// Payment
+router.get("/paymentstats", protect, getUserPaymentStats);
+router.get("/payments-all", protect, getAllUserPayments);
 
 export default router;
