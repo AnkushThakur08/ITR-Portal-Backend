@@ -9,6 +9,7 @@ import userRoutes from "@/routes/user/user.routes";
 import adminRoutes from "@/routes/admin/auth.routes";
 import adminDashboardRoutes from "@/routes/admin/dashboard.routes";
 import adminUserRoutes from "@/routes/admin/user.routes";
+import subAdminUserRoutes from "@/routes/admin/subadmin.routes";
 // import documentRoutes from "./routes/document.routes";
 // import paymentRoutes from "./routes/payment.routes";
 
@@ -31,6 +32,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/admin", adminDashboardRoutes);
 app.use("/api/v1/admin", adminUserRoutes);
+app.use("/api/v1/subadmin", subAdminUserRoutes);
 // app.use("/api/v1/documents", documentRoutes);
 // app.use("/api/v1/payments", paymentRoutes);
 

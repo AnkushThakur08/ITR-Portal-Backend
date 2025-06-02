@@ -2,6 +2,7 @@ import express from "express";
 import { protect, restrictTo } from "@/middleware/auth";
 import { validateRequest } from "@/middleware/validateRequest";
 import {
+  assignUserToAdmin,
   exportAdminUsers,
   getAdminUserDetails,
   getAdminUsers,
@@ -12,8 +13,10 @@ import { updateUserByAdminSchema } from "@/validations/admin/auth.validation";
 
 const router = express.Router();
 
+// GET ALL USER
 router.get("/users", protect, restrictTo("admin", "superadmin"), getAdminUsers);
 
+// UPDATE USER
 router.patch(
   "/users/:userId",
   protect,
@@ -22,6 +25,7 @@ router.patch(
   updateUserByAdmin
 );
 
+// DELETE USER
 router.delete(
   "/users/:userId",
   protect,
@@ -29,6 +33,7 @@ router.delete(
   softDeleteUser
 );
 
+// Export Data
 router.get(
   "/users/export",
   protect,
@@ -36,11 +41,20 @@ router.get(
   exportAdminUsers
 );
 
+// GET USER DETAILS
 router.get(
   "/users/:userId",
   protect,
   restrictTo("admin", "superadmin"),
   getAdminUserDetails
+);
+
+// ASSIGN ADMIN
+router.patch(
+  "/users/:userId/assign",
+  protect,
+  restrictTo("admin", "superadmin"),
+  assignUserToAdmin
 );
 
 export default router;

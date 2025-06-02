@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import ExcelJS from "exceljs";
 import { AppError } from "@/middleware/errorHandler";
 import { Payment } from "@/models/payment.model";
+import { Admin } from "@/models/admin.model";
 
 export const getAdminUsers = async (
   req: Request,
@@ -183,6 +184,41 @@ export const getAdminUserDetails = async (
       documents: user.documents,
       payments,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const assignUserToAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userId } = req.params;
+    const { assignedTo } = req.body;
+
+    console.log("we are here", userId, assignedTo);
+
+    const user = await User.findById(userId);
+    if (!user || user.role !== "client") {
+      return next(new AppError("User not found", 404));
+    }
+
+    console.log("user", user);
+    
+
+    const admin = await Admin.findById(assignedTo);
+    if (!admin) {
+      return next(new AppError("Admin not found", 404));
+    }
+
+    console.log('admin', admin)
+
+    user.assignedTo = admin._id;
+    await user.save();
+
+    res.status(200).json({ message: "User assigned to admin successfully" });
   } catch (error) {
     next(error);
   }
