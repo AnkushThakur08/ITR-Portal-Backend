@@ -84,7 +84,6 @@ const userSchema = new Schema<IUser>(
 
     pan: {
       type: String,
-      unique: true,
       match: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
     },
 

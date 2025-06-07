@@ -24,6 +24,10 @@ export const registerUser = async (req: Request, res: Response) => {
   try {
     const { name, email, phoneNumber, password, userType } = req.body;
 
+    if (!name || !email || !phoneNumber || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { phoneNumber }],
@@ -70,6 +74,12 @@ export const registerUser = async (req: Request, res: Response) => {
 export const verifyOTP = async (req: Request, res: Response) => {
   try {
     const { phoneNumber, otp } = req.body;
+
+    if (!phoneNumber || !otp) {
+      return res
+        .status(400)
+        .json({ message: "Phone number and OTP are required" });
+    }
 
     const user = await User.findOne({ phoneNumber });
     if (!user) {
